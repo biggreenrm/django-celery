@@ -1,3 +1,4 @@
+from celery.result import AsyncResult
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -19,4 +20,10 @@ def run_task(request):
 
 @csrf_exempt
 def get_status(request, task_id):
-    return JsonResponse({"task_id": task_id}, status=200)
+    task_result = AsyncResult(task_id)
+    result = {
+        "task_id": task_id,
+        "task_status": task_result.status,
+        "task_result": task_result.result,
+    }
+    return JsonResponse(result, status=200)
